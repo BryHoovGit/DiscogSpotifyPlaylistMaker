@@ -1,23 +1,18 @@
 const axios = require("axios");
+require("dotenv").config();
 
-const DISCOGS_API_URL = "https://api.discogs.com";
-const DISCOGS_ACCESS_TOKEN = "your_discogs_api_token_here";
-const COLLECTION_FOLDER_ID = 0;
-const RELEASES_PER_PAGE = 50;
-const REQUEST_DELAY_MS = 60000;
-const USER_NAME = "BruceyBear";
-const spotifyApi = "https://api.spotify.com/v1/search";
+const v = process.env;
 
 async function getCollectionPage(pageNum) {
   const response = await axios.get(
-    `${DISCOGS_API_URL}/users/${USER_NAME}/collection/folders/${COLLECTION_FOLDER_ID}/releases`,
+    `${v.DISCOGS_API_URL}/users/${v.DISCOGS_USER_NAME}/collection/folders/${v.DISCOGS_COLLECTION_FOLDER_ID}/releases`,
     {
       headers: {
-        Authorization: `Discogs token=${DISCOGS_ACCESS_TOKEN}`,
+        Authorization: `Discogs token=${v.DISCOGS_ACCESS_TOKEN}`,
       },
       params: {
         page: pageNum,
-        per_page: RELEASES_PER_PAGE,
+        per_page: v.DISCOGS_RELEASES_PER_PAGE,
       },
     }
   );
@@ -29,10 +24,10 @@ async function getReleaseTitlesAndArtists(releases) {
   const artists = [];
   for (const release of releases) {
     const response = await axios.get(
-      `${DISCOGS_API_URL}/releases/${release.id}`,
+      `${v.DISCOGS_API_URL}/releases/${release.id}`,
       {
         headers: {
-          Authorization: `Discogs token=${DISCOGS_ACCESS_TOKEN}`,
+          Authorization: `Discogs token=${v.DISCOGS_ACCESS_TOKEN}`,
         },
       }
     );
@@ -59,9 +54,13 @@ async function processCollectionPages() {
     allArtists.push(...artists);
     if (pageNum < totalPages) {
       console.log(
-        `Waiting ${REQUEST_DELAY_MS / 1000} seconds before next page...`
+        `Waiting ${
+          v.DISCOGS_REQUEST_DELAY_MS / 1000
+        } seconds before next page...`
       );
-      await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
+      await new Promise((resolve) =>
+        setTimeout(resolve, v.DISCOGS_REQUEST_DELAY_MS)
+      );
     }
   }
 
