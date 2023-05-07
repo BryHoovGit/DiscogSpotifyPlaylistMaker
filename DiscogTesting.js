@@ -74,9 +74,34 @@ async function processCollectionPages() {
   return releaseInfo;
 }
 
-async function prepSpotifySearch() {
+// Set up Spotify authentication headers
+const clientId = v.SPOTIFY_CLIENT_ID;
+const clientSecret = v.SPOTIFY_CLIENT_SECRET;
+const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(
+  "base64"
+);
+const authHeaders = {
+  headers: {
+    Authorization: `Basic ${credentials}`,
+  },
+};
+
+// Make the API request with authentication
+async function SpotifySearch() {
   const releaseInfo = await processCollectionPages();
-  console.log(releaseInfo);
+  for (const release of releaseInfo) {
+    const artist = release.artist;
+    const album = release.title;
+    const query = `q=artist:${artist}album:${album}&type=album&market=US&limit=1`;
+    await axios
+      .get(`${v.SPOTIFY_API_URL}/v1/search?${query}`, { authHeaders })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 }
 
-prepSpotifySearch();
+SpotifySearch();
