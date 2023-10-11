@@ -77,31 +77,35 @@ async function processCollectionPages() {
 // Set up Spotify authentication headers
 const clientId = v.SPOTIFY_CLIENT_ID;
 const clientSecret = v.SPOTIFY_CLIENT_SECRET;
-const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(
+const access_token = Buffer.from(`${clientId}:${clientSecret}`).toString(
   "base64"
 );
 const authHeaders = {
   headers: {
-    Authorization: `Basic ${credentials}`,
+    Authorization: `Bearer ${access_token}`,
   },
 };
 
 // Make the API request with authentication
 async function SpotifySearch() {
-  const releaseInfo = await processCollectionPages();
-  for (const release of releaseInfo) {
-    const artist = release.artist;
-    const album = release.title;
-    const query = `q=artist:${artist}album:${album}&type=album&market=US&limit=1`;
-    await axios
-      .get(`${v.SPOTIFY_API_URL}/v1/search?${query}`, { authHeaders })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
+  //const releaseInfo = await processCollectionPages();
+  //for (const release of releaseInfo) {
+  //const artist = release.artist.replace(/\s+/g, "+");
+  //const album = release.title.replace(/\s+/g, "+");
+  //const query = `q=%2520artist:${artist}%2520album:${album}&type=album&market=US&limit=1`;
+  //console.log(`Query is: ${v.SPOTIFY_API_URL}/v1/search?${query}`);
+  await axios
+    .get(
+      "https://api.spotify.com/v1/search?q=%2520artist%3AMac+Miller%2520album%3ACircles&type=album",
+      authHeaders
+    )
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
+//}
 
 SpotifySearch();
